@@ -1,10 +1,12 @@
-t@github.com:DipanMandal/mlops_23.git"""
+"""t@github.com:DipanMandal/mlops_23.git"""
+"""
 ================================
 Recognizing hand-written digits
 ================================
 
 This example shows how scikit-learn can be used to recognize images of
 hand-written digits, from 0-9.
+
 
 """
 
@@ -62,16 +64,33 @@ data = digits.images.reshape((n_samples, -1))
 # Create a classifier: a support vector classifier
 clf = svm.SVC(gamma=0.001)
 
-# Split data into 50% train and 50% test subsets
-X_train, X_test, y_train, y_test = train_test_split(
-    data, digits.target, test_size=0.5, shuffle=False
-)
+#function for getting the train test and dev split
+def train_dev_test_split(X, y, test_size, dev_size):
+    X_train, X_test, y_train, y_test = train_test_split(
+        X, y, test_size= test_size,shuffle=False
+    )
+    X_train, X_test, dev_train, dev_test = train_test_split(
+        X, y, test_size = dev_size, shuffle = False
+    )
 
-# Learn the digits on the train subset
+    return X_train, X_test, y_train, y_test, dev_train, dev_test
+
+def predict_and_eval(model, X_test, y_test):
+    predicted_val = model.predict(X_test)
+    return predicted_val
+
+
+#we are taking 30% for test set and 20% for the dev set
+X_train, X_test, y_train, y_test, dev_train, dev_test = train_dev_test_split(data, digits.target, 0.3, 0.3)
+
+#training the model in the cross validation set
+clf.fit(X_train, dev_train)    
+predicted_dev = predict_and_eval(clf, X_test, dev_test)
+print("Cross-validation data prediction: ",predicted_dev)
+
 clf.fit(X_train, y_train)
-
-# Predict the value of the digit on the test subset
-predicted = clf.predict(X_test)
+predicted = predict_and_eval(clf, X_test, y_test)
+print("Test data prediction: ", predicted)
 
 ###############################################################################
 # Below we visualize the first 4 test samples and show their predicted
