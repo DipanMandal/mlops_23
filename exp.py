@@ -154,7 +154,7 @@ for test in test_sizes:
         X_dev = data_preprocess(X_dev)
         X_test = data_preprocess(X_test)
 
-        print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_train)} dev data size: {len(X_dev)}")
+        print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_test)} dev data size: {len(X_dev)}")
         
         # best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
         
