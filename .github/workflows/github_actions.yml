@@ -22,5 +22,7 @@ jobs:
       - run: echo "🍏 This job's status is ${{ job.status }}."
       - name: Install dep
         run:  pip3 install --no-cache-dir -r requirements.txt
+      - name: Quiz 1 github actions
+        run: echo "For the first question of quiz 1 of MLOps course IITJ"
       - name: Run experiment
         run: python exp.py

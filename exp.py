@@ -39,6 +39,7 @@ digits = datasets.load_digits()
 X = digits.images
 y = digits.target
 
+print(f"size of the images: {digits.data.shape}")
 # _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
 # for ax, image, label in zip(axes, digits.images, digits.target):
 #     ax.set_axis_off()
@@ -135,7 +136,7 @@ y = digits.target
 #     f"{metrics.classification_report(y_true, y_pred)}\n"
 # )
 
-#--------------===================------------------====================------------============
+#=================================================================================================================
 gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001]
 c_list = [0.1, 0.2, 0.5, 0.7, 1, 2, 5, 7, 10]
 
@@ -152,8 +153,10 @@ for test in test_sizes:
         X_train = data_preprocess(X_train)
         X_dev = data_preprocess(X_dev)
         X_test = data_preprocess(X_test)
+
+        print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_train)} dev data size: {len(X_dev)}")
         
-        best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
+        # best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
         
-        print(f"test_size={test} dev_size={dev} train_size={train_size} train_acc={best_accuracy:.2f} dev_acc={best_accuracy:.2f} test_acc={best_accuracy:.2f}")
-        print(f"Best Hyperparameters: ( gamma : {best_hparams[0]} , C : {best_hparams[1]} )")
+        # print(f"test_size={test} dev_size={dev} train_size={train_size} train_acc={best_accuracy:.2f} dev_acc={best_accuracy:.2f} test_acc={best_accuracy:.2f}")
+        # print(f"Best Hyperparameters: ( gamma : {best_hparams[0]} , C : {best_hparams[1]} )")
