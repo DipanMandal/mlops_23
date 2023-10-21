@@ -18,28 +18,16 @@ import matplotlib.pyplot as plt
 
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
+from sklearn.tree import DecisionTreeClassifier
 from sklearn.model_selection import train_test_split
 from utils import train_dev_test_split, predict_and_eval, data_preprocess, tune_hparams, hparams_combinations
-
-###############################################################################
-# Digits dataset
-# --------------
-#
-# The digits dataset consists of 8x8
-# pixel images of digits. The ``images`` attribute of the dataset stores
-# 8x8 arrays of grayscale values for each image. We will use these arrays to
-# visualize the first 4 images. The ``target`` attribute of the dataset stores
-# the digit each image represents and this is included in the title of the 4
-# plots below.
-#
-# Note: if we were working from image files (e.g., 'png' files), we would load
-# them using :func:`matplotlib.pyplot.imread`.
+from sklearn.metrics import accuracy_score, confusion_matrix
 
 digits = datasets.load_digits()
 X = digits.images
 y = digits.target
 
-print(f"size of the images: {digits.data.shape}")
+#print(f"size of the images: {digits.data.shape}")
 # _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
 # for ax, image, label in zip(axes, digits.images, digits.target):
 #     ax.set_axis_off()
@@ -68,7 +56,7 @@ print(f"size of the images: {digits.data.shape}")
 #-------------------------------------------------
 # Create a classifier: a support vector classifier
 #===========================================================================================================
-# clf = svm.SVC(gamma=0.001)
+#clf = svm.SVC(gamma=0.001)
 
 # #we are taking 30% for test set and 20% for the dev set
 # X_train, X_test, y_train, y_test, dev_train, dev_test = train_dev_test_split(data, digits.target, 0.3, 0.3)
@@ -154,9 +142,30 @@ for test in test_sizes:
         X_dev = data_preprocess(X_dev)
         X_test = data_preprocess(X_test)
 
-        print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_test)} dev data size: {len(X_dev)}")
+        #print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_test)} dev data size: {len(X_dev)}")
         
-        # best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
+        best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
         
         # print(f"test_size={test} dev_size={dev} train_size={train_size} train_acc={best_accuracy:.2f} dev_acc={best_accuracy:.2f} test_acc={best_accuracy:.2f}")
-        # print(f"Best Hyperparameters: ( gamma : {best_hparams[0]} , C : {best_hparams[1]} )")
+
+print(f"Best Hyperparameters: ( gamma : {best_hparams[0]} , C : {best_hparams[1]} )")
+
+clf = svm.SVC(gamma=best_hparams[0], C= best_hparams[1])
+clf.fit(X_train, y_train)
+clf_predict = clf.predict(X_test)
+
+candidate_model = DecisionTreeClassifier()
+candidate_model.fit(X_train, y_train)
+candidate_predict = candidate_model.predict(X_test)
+
+clf_accuracy = accuracy_score(y_test, clf_predict)
+candidate_accuracy = accuracy_score(y_test, candidate_predict)
+
+print(f"production model accuracy = {clf_accuracy}")
+print(f"candidate model accuracy = {candidate_accuracy}")
+
+confusion_matrix_clf = confusion_matrix(y_test, clf_predict)
+confusion_matrix_candidate = confusion_matrix(y_test, candidate_predict)
+
+print(f"production model confusion matrix:\n {confusion_matrix_clf}")
+print(f"candidate model confusion matrix:\n {confusion_matrix_candidate}")
