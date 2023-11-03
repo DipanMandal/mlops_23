@@ -18,6 +18,19 @@ def test_for_hparam_combinations_values():
     expected_param_combo_1 = {'gamma':0.001,'C':1}
     expected_param_combo_2 = {'gamma':0.001,'C':1}
 
-
-
     assert (expected_param_combo_1 in h_params_combinations) and (expected_param_combo_2 in h_params_combinations)
+
+def test_data_splitting():
+    X, y = read_digits()
+
+    X = X[:100,:,:]
+    y = y[:100]
+
+    test_size = .1
+    dev_size  = .6
+
+    X_train, X_dev, X_test, y_train, y_dev, y_test = train_dev_test_split(X, y, test_size = test_size, dev_size = dev_size)
+
+    assert(len(X_train) == 30)
+    assert(len(X_dev) == 60)
+    assert(len(X_test) == 10)
