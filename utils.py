@@ -1,12 +1,21 @@
-from sklearn import datasets, metrics, svm
+from sklearn import datasets, metrics, svm, tree
 import itertools
 from sklearn.model_selection import train_test_split
+from joblib import dump
 
+
+def read_digits():
+    digits = datasets.load_digits()
+    X = digits.images
+    y = digits.target
+    return X, y
 #metric = metrics.accuracy_score
 
 def train_model(x, y, model_params, model_type='svm'):
     if model_type == 'svm':
         clf = svm.SVC
+    if model_type == "tree":
+        clf = tree.DecisionTreeClassifier
 
     model = clf(**model_params)
     # pdb.set_trace()
@@ -39,10 +48,11 @@ def predict_and_eval(model, X_test, y_test):
 def hparams_combinations(gamma_list, c_list):
     return list(itertools.product(gamma_list, c_list))
 
-def tune_hparams(X_train, y_train, X_dev, y_dev, combinations):
+def tune_hparams(X_train, y_train, X_dev, y_dev, combinations, model_type = 'svm'):
     best_accuracy = -1
     best_model=None
     best_hparams = None
+    best_model_path = ""
 
     for param in combinations:
         cur_model = train_model(X_train,y_train,{'gamma':param[0],'C':param[1]},model_type='svm')
@@ -51,6 +61,9 @@ def tune_hparams(X_train, y_train, X_dev, y_dev, combinations):
             best_accuracy = cur_accuracy
             best_hparams=param
             best_model = cur_model
+            best_model_path = "./models/{}_".format(model_type) + "_".join(["{}:{}".format(k,v) for k,v in param.items()]) + ".joblib"
+    dump(best_model, best_model_path)
+
         
-    return best_hparams, best_model, best_accuracy
+    return best_hparams, best_model_path, best_accuracy
     
