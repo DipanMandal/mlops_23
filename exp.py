@@ -19,7 +19,6 @@ import matplotlib.pyplot as plt
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
-import pandas as pd
 from joblib import dump, load
 from utils import train_dev_test_split, predict_and_eval, data_preprocess, tune_hparams, hparams_combinations, read_digits
 
