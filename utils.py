@@ -45,8 +45,11 @@ def predict_and_eval(model, X_test, y_test):
     accuracy = metrics.accuracy_score(y_pred=predicted_val, y_true=y_test)
     return accuracy
 
-def hparams_combinations(gamma_list, c_list):
-    return list(itertools.product(gamma_list, c_list))
+def hparams_combinations(dict_of_param_lists):
+    base_combinations = [{}]
+    for param_name, param_values in dict_of_param_lists.items():
+        base_combinations = get_combinations(param_name, param_values, base_combinations)
+    return base_combinations
 
 def tune_hparams(X_train, y_train, X_dev, y_dev, combinations, model_type = 'svm'):
     best_accuracy = -1
