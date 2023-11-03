@@ -1,4 +1,4 @@
-from utils import hparams_combinations, train_dev_test_split
+from utils import hparams_combinations, train_dev_test_split, read_digits
 
 def test_for_hparam_combinations_count():
     gamma_list=[0.001,0.01,0.1,1]
