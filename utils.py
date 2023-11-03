@@ -45,6 +45,14 @@ def predict_and_eval(model, X_test, y_test):
     accuracy = metrics.accuracy_score(y_pred=predicted_val, y_true=y_test)
     return accuracy
 
+def get_combinations(param_name, param_values, base_combinations):    
+    new_combinations = []
+    for value in param_values:
+        for combination in base_combinations:
+            combination[param_name] = value
+            new_combinations.append(combination.copy())    
+    return new_combinations
+
 def hparams_combinations(dict_of_param_lists):
     base_combinations = [{}]
     for param_name, param_values in dict_of_param_lists.items():
