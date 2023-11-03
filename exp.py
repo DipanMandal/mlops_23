@@ -138,8 +138,8 @@ classifier_param_dict['tree'] = combinations_tree
 
 results = []
 
-test_sizes = [0.1, 0.2, 0.3]
-dev_sizes = [0.1, 0.2, 0.3]
+test_sizes = [0.2]
+dev_sizes = [0.2]
 
 for test in test_sizes:
     for dev in dev_sizes:
