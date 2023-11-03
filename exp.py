@@ -152,26 +152,26 @@ for test in test_sizes:
 
         binary_preds = {}
         model_preds = {}
-            for model_type in classifier_param_dict:
-                current_hparams = classifier_param_dict[model_type]
-                best_hparams, best_model_path, best_accuracy  = tune_hparams(X_train, y_train, X_dev, 
-                y_dev, current_hparams, model_type)        
+        for model_type in classifier_param_dict:
+            current_hparams = classifier_param_dict[model_type]
+            best_hparams, best_model_path, best_accuracy  = tune_hparams(X_train, y_train, X_dev, 
+            y_dev, current_hparams, model_type)        
             
-                # loading of model         
-                best_model = load(best_model_path) 
+            # loading of model         
+            best_model = load(best_model_path) 
 
-                test_acc, test_f1, predicted_y = predict_and_eval(best_model, X_test, y_test)
-                train_acc, train_f1, _ = predict_and_eval(best_model, X_train, y_train)
-                dev_acc = best_accuracy
+            test_acc, test_f1, predicted_y = predict_and_eval(best_model, X_test, y_test)
+            train_acc, train_f1, _ = predict_and_eval(best_model, X_train, y_train)
+            dev_acc = best_accuracy
 
-                print("{}\ttest_size={:.2f} dev_size={:.2f} train_size={:.2f} train_acc={:.2f} dev_acc={:.2f} test_acc={:.2f}, test_f1={:.2f}".format(model_type, test_size, dev_size, train_size, train_acc, dev_acc, test_acc, test_f1))
-                cur_run_results = {'model_type': model_type, 'run_index': cur_run_i, 'train_acc' : train_acc, 'dev_acc': dev_acc, 'test_acc': test_acc}
-                results.append(cur_run_results)
-                binary_preds[model_type] = y_test == predicted_y
-                model_preds[model_type] = predicted_y
-                
-                print("{}-GroundTruth Confusion metrics".format(model_type))
-                print(metrics.confusion_matrix(y_test, predicted_y))
+            print("{}\ttest_size={:.2f} dev_size={:.2f} train_size={:.2f} train_acc={:.2f} dev_acc={:.2f} test_acc={:.2f}, test_f1={:.2f}".format(model_type, test_size, dev_size, train_size, train_acc, dev_acc, test_acc, test_f1))
+            cur_run_results = {'model_type': model_type, 'run_index': cur_run_i, 'train_acc' : train_acc, 'dev_acc': dev_acc, 'test_acc': test_acc}
+            results.append(cur_run_results)
+            binary_preds[model_type] = y_test == predicted_y
+            model_preds[model_type] = predicted_y
+            
+            print("{}-GroundTruth Confusion metrics".format(model_type))
+            print(metrics.confusion_matrix(y_test, predicted_y))
 
 
 print("svm-tree Confusion metrics".format())
