@@ -19,32 +19,12 @@ import matplotlib.pyplot as plt
 # Import datasets, classifiers and performance metrics
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
-from utils import train_dev_test_split, predict_and_eval, data_preprocess, tune_hparams, hparams_combinations
+import pandas as pd
+from joblib import dump, load
+from utils import train_dev_test_split, predict_and_eval, data_preprocess, tune_hparams, hparams_combinations, read_digits
 
-###############################################################################
-# Digits dataset
-# --------------
-#
-# The digits dataset consists of 8x8
-# pixel images of digits. The ``images`` attribute of the dataset stores
-# 8x8 arrays of grayscale values for each image. We will use these arrays to
-# visualize the first 4 images. The ``target`` attribute of the dataset stores
-# the digit each image represents and this is included in the title of the 4
-# plots below.
-#
-# Note: if we were working from image files (e.g., 'png' files), we would load
-# them using :func:`matplotlib.pyplot.imread`.
 
-digits = datasets.load_digits()
-X = digits.images
-y = digits.target
-
-print(f"size of the images: {digits.data.shape}")
-# _, axes = plt.subplots(nrows=1, ncols=4, figsize=(10, 3))
-# for ax, image, label in zip(axes, digits.images, digits.target):
-#     ax.set_axis_off()
-#     ax.imshow(image, cmap=plt.cm.gray_r, interpolation="nearest")
-#     ax.set_title("Training: %i" % label)
+X, y = read_digits()
 
 ###############################################################################
 # Classification
@@ -139,8 +119,24 @@ print(f"size of the images: {digits.data.shape}")
 #=================================================================================================================
 gamma_list = [0.01, 0.005, 0.001, 0.0005, 0.0001]
 c_list = [0.1, 0.2, 0.5, 0.7, 1, 2, 5, 7, 10]
+classifier_param_dict = {}
 
+h_params = {}
+h_params['gamma'] = gamma_list
+h_params['c'] = c_list
+
+#for svm
 combinations = hparams_combinations(gamma_list,c_list)
+classifier_param_dict['svm'] = combinations
+
+#for decision trees:
+depth_list = [5, 10, 15, 20, 50]
+h_params_tree = {}
+h_params_tree['max_depth'] = depth_list
+combinations_tree = hparams_combinations(h_params_tree)
+classifier_param_dict['tree'] = combinations_tree
+
+results = []
 
 test_sizes = [0.1, 0.2, 0.3]
 dev_sizes = [0.1, 0.2, 0.3]
@@ -154,9 +150,29 @@ for test in test_sizes:
         X_dev = data_preprocess(X_dev)
         X_test = data_preprocess(X_test)
 
-        print(f"for train size: {train_size} test size:{test}, dev size:{dev} :: train data size : {len(X_train)} test data size: {len(X_test)} dev data size: {len(X_dev)}")
-        
-        # best_hparams, best_model, best_accuracy = tune_hparams(X_train, y_train, X_dev, y_dev, combinations)
-        
-        # print(f"test_size={test} dev_size={dev} train_size={train_size} train_acc={best_accuracy:.2f} dev_acc={best_accuracy:.2f} test_acc={best_accuracy:.2f}")
-        # print(f"Best Hyperparameters: ( gamma : {best_hparams[0]} , C : {best_hparams[1]} )")
+        binary_preds = {}
+            model_preds = {}
+            for model_type in classifier_param_dict:
+                current_hparams = classifier_param_dict[model_type]
+                best_hparams, best_model_path, best_accuracy  = tune_hparams(X_train, y_train, X_dev, 
+                y_dev, current_hparams, model_type)        
+            
+                # loading of model         
+                best_model = load(best_model_path) 
+
+                test_acc, test_f1, predicted_y = predict_and_eval(best_model, X_test, y_test)
+                train_acc, train_f1, _ = predict_and_eval(best_model, X_train, y_train)
+                dev_acc = best_accuracy
+
+                print("{}\ttest_size={:.2f} dev_size={:.2f} train_size={:.2f} train_acc={:.2f} dev_acc={:.2f} test_acc={:.2f}, test_f1={:.2f}".format(model_type, test_size, dev_size, train_size, train_acc, dev_acc, test_acc, test_f1))
+                cur_run_results = {'model_type': model_type, 'run_index': cur_run_i, 'train_acc' : train_acc, 'dev_acc': dev_acc, 'test_acc': test_acc}
+                results.append(cur_run_results)
+                binary_preds[model_type] = y_test == predicted_y
+                model_preds[model_type] = predicted_y
+                
+                print("{}-GroundTruth Confusion metrics".format(model_type))
+                print(metrics.confusion_matrix(y_test, predicted_y))
+
+
+print("svm-tree Confusion metrics".format())
+print(metrics.confusion_matrix(model_preds['svm'], model_preds['tree']))
