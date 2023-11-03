@@ -151,8 +151,8 @@ for test in test_sizes:
         X_test = data_preprocess(X_test)
 
         binary_preds = {}
-            model_preds = {}
-            for model_type in classifier_param_dict:
+        model_preds = {}
+             for model_type in classifier_param_dict:
                 current_hparams = classifier_param_dict[model_type]
                 best_hparams, best_model_path, best_accuracy  = tune_hparams(X_train, y_train, X_dev, 
                 y_dev, current_hparams, model_type)        
