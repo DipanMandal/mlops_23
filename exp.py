@@ -125,7 +125,7 @@ h_params['gamma'] = gamma_list
 h_params['c'] = c_list
 
 #for svm
-combinations = hparams_combinations(gamma_list,c_list)
+combinations = hparams_combinations(h_params)
 classifier_param_dict['svm'] = combinations
 
 #for decision trees:
