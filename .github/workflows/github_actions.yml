@@ -26,5 +26,5 @@ jobs:
         run: echo "For the first question of quiz 1 of MLOps course IITJ"
       - name: Run experiment
         run: python exp.py
-      -name: Testing
+      - name: Testing
         run: pytest
