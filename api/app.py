@@ -1,5 +1,5 @@
 import matplotlib.pyplot as plt
-import sys
+import os
 from sklearn import datasets, metrics, svm
 from sklearn.model_selection import train_test_split
 import pdb
@@ -11,8 +11,13 @@ from PIL import Image
 import numpy as np
 
 app = Flask(__name__)
+current_directory = os.getcwd()
 
-model = load('./models/svm_gamma:0.01_C:1.joblib')
+
+file_path = os.path.join(current_directory, 'models', 'svm_gamma:0.01_C:1.joblib')
+  
+model = load(file_path)
+# model = load('./models/svm_gamma:0.01_C:1.joblib')
 
 @app.route('/predict', methods=['POST'])
 def pred_model():
