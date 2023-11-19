@@ -1,53 +1,24 @@
-import matplotlib.pyplot as plt
-import sys
-from sklearn import datasets, metrics, svm
-from sklearn.model_selection import train_test_split
-import pdb
-from joblib import dump,load
-import numpy as np
-import pandas as pd
 from flask import Flask, request, jsonify
-from PIL import Image
-import numpy as np
+from joblib import load
+import os
 
 app = Flask(__name__)
 
-model = load('.\models\svm_gamma:0.01_C:1.joblib')
-
+@app.route('/hello/<name>')
+def index(name):
+    return "Hello, "+name+"!"
 
 @app.route('/predict', methods=['POST'])
-def compare_digits():
-    try:
-        # Get the two image files from the request
-        data = request.get_json()  # Parse JSON data from the request body
-        image1 = data.get('image1', [])
-        image2 = data.get('image2', [])
-
-        # Preprocess the images and make predictions
-        digit1 = predict_digit(image1)
-        digit2 = predict_digit(image2)
-
-        # Compare the predicted digits and return the result
-        if (digit1 == digit2):
-            return jsonify({'Result':"Images same"})
-
-        else:
-            return jsonify({'Result':"Images different"})
-    except Exception as e:
-        return jsonify({'ERROR': str(e)})
-    
-def predict_digit(image):
-    try:
-        # Convert the input list to a numpy array and preprocess for prediction
-        reshaped_image = np.array(image, dtype=np.float32).reshape(1, 28, 28, 1) / 255
-
-        prediction = model.predict(reshaped_image)
-        digit = np.argmax(prediction)
-
-        return digit
-    except Exception as e:
-        return str(e)
-
+def pred_model():
+    js = request.get_json()
+    image1 = js['image']
+    #Assuming this is the path of our best trained model
+    dirname = os.path.dirname(__file__)
+    filename = os.path.join(dirname, '../models/treemax_depth:100.joblib')
+    model = load(filename)
+    pred1 = model.predict(image1)
+    #reurn pred1 in json
+    return jsonify(prediction=pred1.tolist())
 
 if __name__ == '__main__':
-    app.run()
+    app.run(debug=True)

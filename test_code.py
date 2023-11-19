@@ -1,5 +1,33 @@
 from utils import get_hyperparameter_combinations, train_test_dev_split,read_digits, tune_hparams, preprocess_data
 import os
+import numpy as np
+import pytest
+from api.app import app
+import json
+
+@pytest.fixture(scope="module")
+def collect_samples():
+    x, y = read_digits()
+    samples = {}
+    for val in range(10):
+        index = np.where(y == val)[0][0]
+        samples[val] = x[index].reshape(1, -1)
+    return samples
+
+@pytest.mark.parametrize("digit, prediction", [(0, 0),(1, 1),(2, 2),(3, 3),(4, 4),(5, 5),(6, 6),(7, 7),(8, 8),(9, 9),])
+
+def test_post_predict(collect_samples, digit, prediction):
+    sample = collect_samples[digit]
+
+    # Sending a POST request to the /predict endpoint
+    response = app.test_client().post("/predict", json={"image": sample.tolist()})
+
+    # Check the status code and the prediction
+    assert response.status_code == 200
+    response_data = json.loads(response.get_data(as_text=True))
+    prediction = response_data['prediction'][0]
+    assert prediction == prediction
+    
 def test_for_hparam_cominations_count():
     # a test case to check that all possible combinations of paramers are indeed generated
     gamma_list = [0.001, 0.01, 0.1, 1]
@@ -19,6 +47,7 @@ def create_dummy_hyperparameter():
     h_params['C'] = C_list
     h_params_combinations = get_hyperparameter_combinations(h_params)
     return h_params_combinations
+
 def create_dummy_data():
     X, y = read_digits()
     
