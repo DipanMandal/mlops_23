@@ -5,4 +5,8 @@ COPY . /digits/
 
 RUN pip3 install -r /digits/requirements.txt
 
-CMD ["sh", "-c", "python exp.py"]
+ENV FLASK_APP=api/prediction
+
+EXPOSE 80
+
+CMD ["flask", "run", "--host=0.0.0.0", "--port=80"]
