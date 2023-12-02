@@ -9,13 +9,30 @@ import pandas as pd
 from flask import Flask, request, jsonify
 from PIL import Image
 import numpy as np
+import os
 
 app = Flask(__name__)
 
-model = load('.\models\svm_gamma:0.01_C:1.joblib')
+current_directory = os.path.split(os.getcwd())[0]
 
 
-@app.route('/predict', methods=['POST'])
+def load_model(model_type):
+    if model_type == 'svm':
+        print("svm")
+        file_path = os.path.join(current_directory, 'models', 'M23CSA009_gamma:0.01_C:1.joblib')
+    elif model_type == 'logistic':
+        file_path = os.path.join(current_directory, 'models', 'M23CSA009_lr_lbfgs.joblib')
+    elif model_type == 'decision_tree':
+        file_path = os.path.join(current_directory, 'models', 'tree_max_depth:50.joblib')
+    else:
+        raise ValueError("Invalid model_type. Choose 'svm', 'logistic', or 'decision_tree'.")
+    
+    model = load(file_path)
+    return model
+
+model = load_model('svm')
+
+@app.route('/predict/<model_type>', methods=['POST'])
 def compare_digits():
     try:
         # Get the two image files from the request
