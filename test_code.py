@@ -1,5 +1,8 @@
 from utils import get_hyperparameter_combinations, train_test_dev_split,read_digits, tune_hparams, preprocess_data
 import os
+from joblib import dump, load
+from sklearn.linear_model import LogisticRegression
+
 def test_for_hparam_cominations_count():
     # a test case to check that all possible combinations of paramers are indeed generated
     gamma_list = [0.001, 0.01, 0.1, 1]
@@ -62,3 +65,19 @@ def test_data_splitting():
     assert (len(X_train) == 30) 
     assert (len(X_test) == 10)
     assert  ((len(X_dev) == 60))
+
+solver = "liblinear"
+
+def test_logistic_regression():
+
+    model_filename = f"./models/M23CSA009_lr_{solver}.joblib"
+    loaded_model = load(model_filename)
+
+    assert isinstance(loaded_model, LogisticRegression)
+
+def test_name_model():
+
+    model_filename = f"./models/M23CSA009_lr_{solver}.joblib"
+    loaded_model = load(model_filename)
+
+    assert solver in model_filename

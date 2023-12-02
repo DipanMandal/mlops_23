@@ -13,12 +13,12 @@ hand-written digits, from 0-9.
 
 # Import datasets, classifiers and performance metrics
 from sklearn import metrics, svm
-
+from sklearn.preprocessing import normalize
 from utils import preprocess_data, split_data, train_model, read_digits, predict_and_eval, train_test_dev_split, get_hyperparameter_combinations, tune_hparams
 from joblib import dump, load
 import pandas as pd
 
-num_runs  = 5
+num_runs  = 1
 # 1. Get the dataset
 X, y = read_digits()
 
@@ -40,6 +40,14 @@ h_params_tree['max_depth'] = max_depth_list
 h_params_trees_combinations = get_hyperparameter_combinations(h_params_tree)
 classifier_param_dict['tree'] = h_params_trees_combinations
 
+# 2.3 logistic regression:
+solver_list = ['lbfgs', 'liblinear', 'newton-cg', 'newton-cholesky', 'sag', 'saga']
+
+h_params_logistic = {}
+h_params_logistic['solver'] = solver_list
+h_params_logistic_combinations = get_hyperparameter_combinations(h_params_logistic)
+classifier_param_dict['logistic'] = h_params_logistic_combinations
+
 
 results = []
 test_sizes =  [0.2]
@@ -55,6 +63,12 @@ for cur_run_i in range(num_runs):
             X_train = preprocess_data(X_train)
             X_test = preprocess_data(X_test)
             X_dev = preprocess_data(X_dev)
+
+
+            #normalizing the train test and dev data:(final exam)
+            X_train = normalize(X_train)
+            X_test = normalize(X_test)
+            X_dev = normalize(X_dev)
 
 
             for model_type in classifier_param_dict:
